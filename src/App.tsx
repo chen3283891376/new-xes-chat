@@ -15,7 +15,7 @@ function App() {
     const [username, setUsername] = useState<string>('guest');
     const [messages, setMessages] = useState<Message[]>([]);
     const [roomList, setRoomList] = useState<{ id: number; title: string }[]>(
-        localStorage.getItem('roomList') ? JSON.parse(localStorage.getItem('roomList') as string) : []
+        localStorage.getItem('roomList') ? JSON.parse(localStorage.getItem('roomList') as string) : [],
     );
     const [input, setInput] = useState<string>('');
     const pollingRef = useRef<number | null>(null);
@@ -49,7 +49,7 @@ function App() {
         } else {
             localStorage.setItem('roomList', JSON.stringify(roomList));
         }
-    }, [roomList])
+    }, [roomList]);
 
     const startPolling = () => {
         stopPolling();
@@ -104,7 +104,7 @@ function App() {
             <Sider style={{ padding: 16, background: '#f5f7fa' }}>
                 <Typography.Title heading={5}>选择聊天室</Typography.Title>
                 <List
-                    className='max-h-1/2 overflow-scroll'
+                    className="max-h-1/2 overflow-scroll"
                     dataSource={roomList}
                     renderItem={(item: any) => (
                         <List.Item>
@@ -139,9 +139,9 @@ function App() {
                     </Button>
 
                     <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-                        <Button 
+                        <Button
                             disabled={!xRef.current}
-                            type="primary" 
+                            type="primary"
                             onClick={async () => {
                                 const projectId = String(Math.floor(Math.random() * 1000000000));
                                 const x = xRef.current;
@@ -149,24 +149,35 @@ function App() {
                                 try {
                                     x.valueData.projectId = projectId;
                                     const time = String(Date.now() / 1000);
-                                    const data = { username, msg: 'Init.', time: time }
+                                    const data = { username, msg: 'Init.', time: time };
                                     await x.sendNum(JSON.stringify(data), time);
                                     setChatId(Number(projectId));
-                                    setRoomList(prev => [...prev, { id: Number(projectId), title: `房间${projectId}` }]);
+                                    setRoomList(prev => [
+                                        ...prev,
+                                        { id: Number(projectId), title: `房间${projectId}` },
+                                    ]);
                                     await navigator.clipboard.writeText(projectId);
                                     Toast.success('新聊天室创建成功，聊天室ID已复制，发给好友即可加入');
                                 } catch (e) {
                                     Toast.error('新聊天室创建失败');
                                 }
                             }}
-                        >创建房间</Button>
-                        <Button type="tertiary" onClick={() => {
-                            const projectId = window.prompt('请输入房间ID：');
-                            if (projectId && !roomList.some(room => room.id === Number(projectId))) {
-                                setChatId(Number(projectId));
-                                setRoomList(prev => [...prev, { id: Number(projectId), title: `房间${projectId}` }]);
-                            }
-                        }}>
+                        >
+                            创建房间
+                        </Button>
+                        <Button
+                            type="tertiary"
+                            onClick={() => {
+                                const projectId = window.prompt('请输入房间ID：');
+                                if (projectId && !roomList.some(room => room.id === Number(projectId))) {
+                                    setChatId(Number(projectId));
+                                    setRoomList(prev => [
+                                        ...prev,
+                                        { id: Number(projectId), title: `房间${projectId}` },
+                                    ]);
+                                }
+                            }}
+                        >
                             加入房间
                         </Button>
                     </div>
