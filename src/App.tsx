@@ -9,12 +9,16 @@ type Message = {
     msg: string;
     time: number;
 };
+type Room = {
+    id: number;
+    title: string;
+};
 
 function App() {
     const [chatId, setChatId] = useState<number>(26329675);
     const [username, setUsername] = useState<string>('guest');
     const [messages, setMessages] = useState<Message[]>([]);
-    const [roomList, setRoomList] = useState<{ id: number; title: string }[]>(
+    const [roomList, setRoomList] = useState<Room[]>(
         localStorage.getItem('roomList') ? JSON.parse(localStorage.getItem('roomList') as string) : [],
     );
     const [input, setInput] = useState<string>('');
@@ -100,13 +104,13 @@ function App() {
     };
 
     return (
-        <Layout style={{ height: '100vh' }}>
-            <Sider style={{ padding: 16, background: '#f5f7fa' }}>
+        <Layout className="h-screen">
+            <Sider className="p-4 bg-gray-50">
                 <Typography.Title heading={5}>选择聊天室</Typography.Title>
                 <List
                     className="max-h-1/2 overflow-scroll"
                     dataSource={roomList}
-                    renderItem={(item: { id: number; title: string }) => (
+                    renderItem={(item: Room) => (
                         <List.Item>
                             <Button
                                 disabled={!xRef.current}
@@ -116,16 +120,16 @@ function App() {
                                     setChatId(item.id);
                                     xRef.current.valueData.projectId = String(item.id);
                                 }}
-                                style={{ width: '100%' }}
+                                className="w-full"
                             >
                                 {item.title}
                             </Button>
                         </List.Item>
                     )}
                 />
-                <div style={{ marginTop: 16 }}>
-                    <div style={{ marginBottom: 8 }}>当前用户：</div>
-                    <div style={{ marginBottom: 12 }}>{username}</div>
+                <div className="mt-4">
+                    <div className="mb-2">当前用户：</div>
+                    <div className="mb-3">{username}</div>
                     <Button
                         onClick={() => {
                             const n = window.prompt('输入新的用户名：', username || '');
@@ -138,7 +142,7 @@ function App() {
                         切换用户名
                     </Button>
 
-                    <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+                    <div className="mt-4 flex gap-2">
                         <Button
                             disabled={!xRef.current}
                             type="primary"
@@ -185,7 +189,7 @@ function App() {
                 </div>
             </Sider>
             <Layout>
-                <Content style={{ padding: 16, overflow: 'auto' }}>
+                <Content className="p-4 overflow-auto">
                     <List
                         dataSource={messages}
                         renderItem={(item: Message) => (
@@ -193,19 +197,19 @@ function App() {
                                 <Card.Meta
                                     avatar={<Avatar>{item.username ? item.username[0] : '?'}</Avatar>}
                                     title={`${item.username}  ${new Date(item.time * 1000).toLocaleString()}`}
-                                    description={<div style={{ whiteSpace: 'pre-wrap' }}>{item.msg}</div>}
+                                    description={<div className="whitespace-pre-wrap">{item.msg}</div>}
                                 />
                             </List.Item>
                         )}
                     />
                 </Content>
-                <div style={{ padding: 12, display: 'flex', gap: 8, alignItems: 'center', background: '#fff' }}>
+                <div className="p-3 flex gap-2 items-center bg-white">
                     <Input
                         disabled={!xRef.current}
                         value={input}
                         onChange={v => setInput(v)}
                         placeholder="请输入文本"
-                        style={{ flex: 1 }}
+                        className="flex-1"
                     />
                     <Button type="primary" onClick={handleSend}>
                         发送
