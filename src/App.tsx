@@ -1,20 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { AvatarGroupCount } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { XESCloudValue } from './utils/XesCloud';
 import { LogInIcon, PlusIcon, SendIcon } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { MessageBubble, type Message } from '@/components/MessageBuddle';
 
-type Message = {
-    username: string;
-    msg: string;
-    time: number;
-};
 type Room = {
     id: number;
     title: string;
+};
+
+const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp * 1000);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
 };
 
 function App() {
@@ -48,8 +51,9 @@ function App() {
 
     useEffect(() => {
         if (roomList.length === 0) {
-            setRoomList([{ id: 26329675, title: '项目大群' }]);
-            localStorage.setItem('roomList', JSON.stringify(roomList));
+            const defaultRooms = [{ id: 26329675, title: '项目大群' }];
+            setRoomList(defaultRooms);
+            localStorage.setItem('roomList', JSON.stringify(defaultRooms));
         } else {
             localStorage.setItem('roomList', JSON.stringify(roomList));
         }
@@ -106,9 +110,9 @@ function App() {
 
     return (
         <div className="h-screen flex">
-            <div className="w-64 p-4 bg-gray-50 flex flex-col border-r">
+            <div className="w-56 p-4 bg-gray-50 flex flex-col border-r">
                 <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">选择聊天室</h4>
-                <div className="flex-1 max-h-1/2 overflow-x-hidden overflow-y-scroll my-2 p-2">
+                <ScrollArea className="flex-1 max-h-1/2 p-2 my-2 border rounded">
                     {roomList.map((item: Room, index) => (
                         <div key={item.id} className="mb-2">
                             <Button
@@ -123,10 +127,10 @@ function App() {
                             >
                                 {item.title}
                             </Button>
-                            {index !== roomList.length - 1 && <Separator className="my-4" />}
+                            {index !== roomList.length - 1 && <Separator className="my-2" />}
                         </div>
                     ))}
-                </div>
+                </ScrollArea>
                 <Separator className="my-2" />
                 <div className="mt-4">
                     <div className="mb-2">当前用户：</div>
@@ -202,29 +206,13 @@ function App() {
 
             <div className="flex-1 flex flex-col">
                 <div className="flex-1 p-4 overflow-auto">
-                    {messages.map((item, index) => (
-                        <div
+                    {messages.map((message, index) => (
+                        <MessageBubble
                             key={index}
-                            className={`flex ${item.username === username ? 'justify-end' : 'justify-start'} mb-4`}
-                        >
-                            <div
-                                className={`max-w-[70%] flex items-start gap-3 ${item.username === username ? 'flex-row-reverse' : ''}`}
-                            >
-                                <AvatarGroupCount>{item.username ? item.username[0] : '?'}</AvatarGroupCount>
-                                <div>
-                                    <div
-                                        className={`text-sm text-gray-500 ${item.username === username ? 'text-right' : 'text-left'}`}
-                                    >
-                                        {item.username} · {new Date(item.time * 1000).toLocaleString()}
-                                    </div>
-                                    <div
-                                        className={`mt-1 p-3 rounded-lg whitespace-pre-wrap wrap-break-word ${item.username === username ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}`}
-                                    >
-                                        {item.msg}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            message={message}
+                            currentUsername={username}
+                            formatTime={formatTime}
+                        />
                     ))}
                 </div>
 
