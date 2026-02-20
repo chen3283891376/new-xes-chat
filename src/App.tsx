@@ -5,6 +5,7 @@ import { useUsername } from './hooks/useUsername';
 import { ChatRoomSidebar } from '@/components/ChatRoom/ChatRoomSidebar';
 import { MessageArea } from './components/ChatRoom/MessageArea';
 import InitProfilePage from '@/pages/InitProfile.tsx';
+import type { KeyboardEvent } from 'react';
 
 function App() {
     const {
@@ -19,7 +20,10 @@ function App() {
 
     const { chatId, setChatId, roomList, isCreatingRoom, createRoom, joinRoom, deleteRoom } = useRoomManager(26329675);
 
-    const { messages, isSending, sendMessage, sendFile } = useChatMessages(chatId, username);
+    const { messages, isSending, sendMessage, sendFile } = useChatMessages(
+        chatId,
+        typeof username === 'string' ? username : '',
+    );
 
     const [input, setInput] = useState('');
 
@@ -28,7 +32,7 @@ function App() {
         if (success) setInput('');
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend();

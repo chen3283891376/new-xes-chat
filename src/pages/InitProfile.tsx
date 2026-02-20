@@ -59,7 +59,9 @@ export default function InitProfilePage() {
                 </CardContent>
 
                 <CardFooter>
-                    <Button onClick={setUsername} className="cursor-pointer">确认</Button>
+                    <Button onClick={setUsername} className="cursor-pointer">
+                        确认
+                    </Button>
                 </CardFooter>
             </Card>
         </div>
