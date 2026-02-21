@@ -16,6 +16,7 @@ import {
     AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import type { IFile } from '@/hooks/useChatMessages';
+import { FileDisplay } from '../FileDisplay';
 
 const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
@@ -87,14 +88,17 @@ export function MessageArea({
     }
 
     return (
-        <div className="flex-1 flex flex-col">
-            <div className="p-3 flex gap-2 border-b items-end">
+        <div className="flex-1 flex flex-col h-full">
+            <div className="p-3 flex gap-2 border-b items-end shrink-0">
                 <h1 className="text-lg font-bold">{roomName}</h1>
                 <span className="text-gray-500 text-sm">ID: {chatId}</span>
             </div>
-            <ScrollArea ref={scrollAreaRef} className="flex-1 h-[calc(100%-124px)] p-4 relative">
+
+            <ScrollArea ref={scrollAreaRef} className="flex-1 min-h-0 p-4 relative">
                 {messages.length === 0 ? (
-                    <div className="h-full flex items-center justify-center text-gray-400">消息正在加载中...</div>
+                    <div className="h-full flex items-center justify-center text-gray-400">
+                        消息正在加载中...
+                    </div>
                 ) : (
                     messages.map((message, index) => (
                         <MessageBubble
@@ -114,16 +118,24 @@ export function MessageArea({
                 )}
             </ScrollArea>
 
-            <div className="p-3 flex flex-col bg-white border-t">
+            <div className="p-3 flex flex-col bg-white border-t shrink-0 max-h-45 overflow-y-auto">
                 {quoteMessage && (
-                    <div className="text-xs p-2 mb-2 rounded border-l-4 overflow-hidden bg-slate-50 border-slate-400 text-slate-800">
+                    <div className="text-xs p-2 mb-2 rounded border-l-4 bg-slate-50 border-slate-400 text-slate-800">
                         <p className="font-bold mb-0.5">@{quoteMessage.username}</p>
-                        <div className="prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
-                            {quoteMessage.msg}
+                        <div className="prose prose-sm max-w-none max-h-24 overflow-y-auto prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
+                            {quoteMessage.type !== 'share' ? (
+                                quoteMessage.msg
+                            ) : (
+                                <FileDisplay
+                                    fileData={JSON.parse(quoteMessage.msg)}
+                                    isCurrentUser={false}
+                                />
+                            )}
                         </div>
                     </div>
                 )}
-                <div className="flex gap-2 items-center">
+                
+                <div className="flex gap-2 items-center shrink-0">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button size="icon-sm" disabled={isSending || !isConnected}>
@@ -134,16 +146,29 @@ export function MessageArea({
                             <AlertDialogHeader>
                                 <AlertDialogTitle>分享文件</AlertDialogTitle>
                                 <AlertDialogDescription className="w-full">
-                                    <iframe className="w-full" src="https://new-xes-pan.netlify.app/upload" />
-                                    <p>请将文件在这里上传，后来把数据填入下方表单</p>
-                                    <Input placeholder="请输入给你的数据" ref={inputRef} />
+                                    <iframe 
+                                        className="w-full" 
+                                        src="https://new-xes-pan.netlify.app/upload" 
+                                        title="文件上传"
+                                    />
+                                    <p className="mt-2">请将文件在这里上传，然后把数据填入下方表单</p>
+                                    <Input 
+                                        placeholder="请输入给你的数据" 
+                                        ref={inputRef} 
+                                        className="mt-2"
+                                    />
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>取消</AlertDialogCancel>
                                 <AlertDialogAction
                                     onClick={() => {
-                                        sendFile(JSON.parse(inputRef.current?.value || ''));
+                                        try {
+                                            const fileData = JSON.parse(inputRef.current?.value || '');
+                                            sendFile(fileData);
+                                        } catch (error) {
+                                            console.error('解析文件数据失败:', error);
+                                        }
                                     }}
                                 >
                                     分享
@@ -151,6 +176,7 @@ export function MessageArea({
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+                    
                     <Input
                         disabled={isSending || !isConnected}
                         value={input}
@@ -159,10 +185,13 @@ export function MessageArea({
                         placeholder="请输入文本"
                         className="flex-1"
                     />
+                    
                     <Button
                         onClick={() => {
-                            onSend(quoteMessage);
-                            setQuoteMessage(undefined);
+                            if (input.trim()) {
+                                onSend(quoteMessage);
+                                setQuoteMessage(undefined);
+                            }
                         }}
                         size="icon-sm"
                         disabled={isSending || !isConnected || input.trim() === ''}
