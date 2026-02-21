@@ -100,7 +100,11 @@ export function MessageArea({
                         <MessageBubble
                             key={`${message.time}-${index}`}
                             setQuoteMessage={setQuoteMessage}
-                            quoteMessage={message.quoteTimeStamp ? messages.find(msg => msg.time === message.quoteTimeStamp) : undefined}
+                            quoteMessage={
+                                message.quoteTimeStamp
+                                    ? messages.find(msg => msg.time === message.quoteTimeStamp)
+                                    : undefined
+                            }
                             message={message}
                             currentUsername={currentUsername}
                             formatTime={formatTime}
@@ -112,14 +116,14 @@ export function MessageArea({
 
             <div className="p-3 flex flex-col bg-white border-t">
                 {quoteMessage && (
-                    <div className='text-xs p-2 mb-2 rounded border-l-4 overflow-hidden bg-slate-50 border-slate-400 text-slate-800'>
-                        <p className='font-bold mb-0.5'>@{quoteMessage.username}</p>
-                        <div className='prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1'>
+                    <div className="text-xs p-2 mb-2 rounded border-l-4 overflow-hidden bg-slate-50 border-slate-400 text-slate-800">
+                        <p className="font-bold mb-0.5">@{quoteMessage.username}</p>
+                        <div className="prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
                             {quoteMessage.msg}
                         </div>
                     </div>
                 )}
-                <div className='flex gap-2 items-center'>
+                <div className="flex gap-2 items-center">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button size="icon-sm" disabled={isSending || !isConnected}>
@@ -129,8 +133,8 @@ export function MessageArea({
                         <AlertDialogContent>
                             <AlertDialogHeader>
                                 <AlertDialogTitle>分享文件</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    <iframe src="https://new-xes-pan.netlify.app/upload" />
+                                <AlertDialogDescription className="w-full">
+                                    <iframe className="w-full" src="https://new-xes-pan.netlify.app/upload" />
                                     <p>请将文件在这里上传，后来把数据填入下方表单</p>
                                     <Input placeholder="请输入给你的数据" ref={inputRef} />
                                 </AlertDialogDescription>
@@ -155,10 +159,14 @@ export function MessageArea({
                         placeholder="请输入文本"
                         className="flex-1"
                     />
-                    <Button onClick={() => {
-                        onSend(quoteMessage);
-                        setQuoteMessage(undefined);
-                    }} size="icon-sm" disabled={isSending || !isConnected || input.trim() === ''}>
+                    <Button
+                        onClick={() => {
+                            onSend(quoteMessage);
+                            setQuoteMessage(undefined);
+                        }}
+                        size="icon-sm"
+                        disabled={isSending || !isConnected || input.trim() === ''}
+                    >
                         <SendIcon className="h-4 w-4" />
                     </Button>
                 </div>

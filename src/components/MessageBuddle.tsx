@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AvatarGroupCount } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import type { IFile } from '@/hooks/useChatMessages';
-import { DownloadIcon, FileTextIcon, QuoteIcon, UndoIcon, X } from 'lucide-react';
+import { DownloadIcon, FileAudioIcon, FileTextIcon, QuoteIcon, UndoIcon, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import {
     ContextMenu,
@@ -36,9 +36,23 @@ const isImageFile = (filename: string): boolean => {
     return ext ? imageExtensions.includes(ext) : false;
 };
 
-export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTime, handleRecall, setQuoteMessage }: MessageBubbleProps) => {
+const isAudioFile = (filename: string): boolean => {
+    const audioExtensions = ['mp3', 'wav', 'ogg', 'aac', 'flac'];
+    const ext = filename.split('.').pop()?.toLowerCase();
+    return ext ? audioExtensions.includes(ext) : false;
+};
+
+export const MessageBubble = ({
+    quoteMessage,
+    message,
+    currentUsername,
+    formatTime,
+    handleRecall,
+    setQuoteMessage,
+}: MessageBubbleProps) => {
     const isCurrentUser = message.username === currentUsername;
     const [imageError, setImageError] = useState(false);
+    const [audioError, setAudioError] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
 
     let fileData: IFile | null = null;
@@ -51,12 +65,14 @@ export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTi
     }
 
     const resetImageError = () => setImageError(false);
+    const resetAudioError = () => setAudioError(false);
 
     const downloadUrl = fileData
         ? `https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData.name}&file=${fileData.link.split('python_assets/')[1]}`
         : '';
 
     const isImage = fileData && isImageFile(fileData.name) && !imageError;
+    const isAudio = fileData && isAudioFile(fileData.name) && !audioError;
 
     const handleDownload = () => {
         if (downloadUrl) {
@@ -94,14 +110,16 @@ export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTi
                                         )}
                                     >
                                         {quoteMessage && (
-                                            <div className={cn(
-                                                'text-xs p-2 mb-2 rounded border-l-4 overflow-hidden',
-                                                isCurrentUser
-                                                    ? 'bg-indigo-900/30 border-indigo-400 text-indigo-100'
-                                                    : 'bg-slate-50 border-slate-400 text-slate-800',
-                                            )}>
-                                                <p className='font-bold mb-0.5'>@{quoteMessage.username}</p>
-                                                <div className='prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1'>
+                                            <div
+                                                className={cn(
+                                                    'text-xs p-2 mb-2 rounded border-l-4 overflow-hidden',
+                                                    isCurrentUser
+                                                        ? 'bg-indigo-900/30 border-indigo-400 text-indigo-100'
+                                                        : 'bg-slate-50 border-slate-400 text-slate-800',
+                                                )}
+                                            >
+                                                <p className="font-bold mb-0.5">@{quoteMessage.username}</p>
+                                                <div className="prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
                                                     {quoteMessage.msg}
                                                 </div>
                                             </div>
@@ -152,9 +170,10 @@ export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTi
                                                         </a>
                                                     </div>
                                                 ) : (
+                                                    <div className='flex flex-col gap-2 p-3 border rounded-lg transition-colors opacity-70'>
                                                     <div
                                                         className={cn(
-                                                            'flex items-center gap-3 p-3 border rounded-lg transition-colors opacity-70',
+                                                            'flex items-center gap-3',
                                                         )}
                                                     >
                                                         <div
@@ -165,14 +184,25 @@ export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTi
                                                                     : 'bg-background border-border',
                                                             )}
                                                         >
-                                                            <FileTextIcon
-                                                                size={20}
-                                                                className={cn(
-                                                                    isCurrentUser
-                                                                        ? 'text-white/80 dark:text-black/80'
-                                                                        : 'text-text-secondary',
-                                                                )}
-                                                            />
+                                                            {isAudio ? (
+                                                                <FileAudioIcon
+                                                                    size={20}
+                                                                    className={cn(
+                                                                        isCurrentUser
+                                                                            ? 'text-white/80 dark:text-black/80'
+                                                                            : 'text-text-secondary',
+                                                                    )}
+                                                                />
+                                                            ) : (
+                                                                <FileTextIcon
+                                                                    size={20}
+                                                                    className={cn(
+                                                                        isCurrentUser
+                                                                            ? 'text-white/80 dark:text-black/80'
+                                                                            : 'text-text-secondary',
+                                                                    )}
+                                                                />
+                                                            )}
                                                         </div>
                                                         <div className="flex-1 min-w-25">
                                                             <p className="text-sm font-medium truncate">
@@ -194,6 +224,17 @@ export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTi
                                                         >
                                                             <DownloadIcon size={18} />
                                                         </a>
+                                                    </div>
+                                                    <audio
+                                                        src={fileData?.link}
+                                                        controls
+                                                        className={cn(
+                                                            'w-full h-10',
+                                                            isCurrentUser ? 'bg-white/10' : 'bg-background',
+                                                        )}
+                                                        onError={() => setAudioError(true)}
+                                                        onLoad={resetAudioError}
+                                                    />
                                                     </div>
                                                 )}
                                             </div>
