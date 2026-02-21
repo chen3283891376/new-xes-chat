@@ -48,7 +48,7 @@ export const MessageBubble = ({
         }
     }
 
-    const downloadUrl = fileData
+    const downloadUrl = fileData?.link?.includes('python_assets/')
         ? `https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData.name}&file=${fileData.link.split('python_assets/')[1]}`
         : '';
 

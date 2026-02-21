@@ -20,18 +20,21 @@ type FileDisplayProps = {
 
 const isImageFile = (filename: string): boolean => {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    if (!filename) return false;
     const ext = filename.split('.').pop()?.toLowerCase();
     return ext ? imageExtensions.includes(ext) : false;
 };
 
 const isAudioFile = (filename: string): boolean => {
     const audioExtensions = ['mp3', 'wav', 'ogg', 'aac', 'flac'];
+    if (!filename) return false;
     const ext = filename.split('.').pop()?.toLowerCase();
     return ext ? audioExtensions.includes(ext) : false;
 };
 
 const isVideoFile = (filename: string): boolean => {
     const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mkv'];
+    if (!filename) return false;
     const ext = filename.split('.').pop()?.toLowerCase();
     return ext ? videoExtensions.includes(ext) : false;
 };
@@ -46,7 +49,7 @@ export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
     const resetAudioError = () => setAudioError(false);
     const resetVideoError = () => setVideoError(false);
 
-    const downloadUrl = fileData
+    const downloadUrl = fileData?.link?.includes('python_assets/')
         ? `https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData.name}&file=${fileData.link.split('python_assets/')[1]}`
         : '';
 
@@ -60,13 +63,6 @@ export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
                 <div className="relative group">
                     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
                         <DialogTrigger asChild>
-                            {/* <img
-                                src={fileData?.link}
-                                alt={fileData?.name}
-                                className="max-w-full max-h-64 rounded-t-2xl rounded-br-2xl object-contain cursor-zoom-in"
-                                onError={() => setImageError(true)}
-                                onLoad={resetImageError}
-                            /> */}
                             {isImage ? (
                                 <img
                                     src={fileData?.link}
