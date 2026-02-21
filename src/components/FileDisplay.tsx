@@ -34,7 +34,7 @@ const isVideoFile = (filename: string): boolean => {
     const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mkv'];
     const ext = filename.split('.').pop()?.toLowerCase();
     return ext ? videoExtensions.includes(ext) : false;
-}
+};
 
 export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
     const [imageError, setImageError] = useState(false);
@@ -56,7 +56,7 @@ export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
 
     return (
         <div className="flex flex-col gap-1 w-full max-w-md">
-            {(isImage || isVideo) ? (
+            {isImage || isVideo ? (
                 <div className="relative group">
                     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
                         <DialogTrigger asChild>
@@ -137,29 +137,21 @@ export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
                                 <FileAudioIcon
                                     size={20}
                                     className={cn(
-                                        isCurrentUser
-                                            ? 'text-white/80 dark:text-black/80'
-                                            : 'text-text-secondary',
+                                        isCurrentUser ? 'text-white/80 dark:text-black/80' : 'text-text-secondary',
                                     )}
                                 />
                             ) : (
                                 <FileTextIcon
                                     size={20}
                                     className={cn(
-                                        isCurrentUser
-                                            ? 'text-white/80 dark:text-black/80'
-                                            : 'text-text-secondary',
+                                        isCurrentUser ? 'text-white/80 dark:text-black/80' : 'text-text-secondary',
                                     )}
                                 />
                             )}
                         </div>
                         <div className="flex-1 min-w-25">
-                            <p className="text-sm font-medium truncate">
-                                {fileData?.name || '未知文件名'}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                                {fileData?.size || '未知大小'}
-                            </p>
+                            <p className="text-sm font-medium truncate">{fileData?.name || '未知文件名'}</p>
+                            <p className="text-xs text-gray-500">{fileData?.size || '未知大小'}</p>
                         </div>
                         <a
                             href={downloadUrl}
@@ -178,10 +170,7 @@ export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
                         <audio
                             src={fileData?.link}
                             controls
-                            className={cn(
-                                'w-full h-10',
-                                isCurrentUser ? 'bg-white/10' : 'bg-background',
-                            )}
+                            className={cn('w-full h-10', isCurrentUser ? 'bg-white/10' : 'bg-background')}
                             onError={() => setAudioError(true)}
                             onLoad={resetAudioError}
                         />

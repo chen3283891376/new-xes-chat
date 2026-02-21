@@ -105,10 +105,7 @@ export const MessageBubble = ({
                                             <p className="text-sm wrap-break-word whitespace-pre-wrap">{message.msg}</p>
                                         ) : (
                                             fileData && (
-                                                <FileDisplay 
-                                                    fileData={fileData} 
-                                                    isCurrentUser={isCurrentUser} 
-                                                />
+                                                <FileDisplay fileData={fileData} isCurrentUser={isCurrentUser} />
                                             )
                                         )}
                                     </div>

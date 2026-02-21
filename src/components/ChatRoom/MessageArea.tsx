@@ -96,9 +96,7 @@ export function MessageArea({
 
             <ScrollArea ref={scrollAreaRef} className="flex-1 min-h-0 p-4 relative">
                 {messages.length === 0 ? (
-                    <div className="h-full flex items-center justify-center text-gray-400">
-                        消息正在加载中...
-                    </div>
+                    <div className="h-full flex items-center justify-center text-gray-400">消息正在加载中...</div>
                 ) : (
                     messages.map((message, index) => (
                         <MessageBubble
@@ -126,18 +124,19 @@ export function MessageArea({
                             {quoteMessage.type !== 'share' ? (
                                 quoteMessage.msg
                             ) : (
-                                <FileDisplay
-                                    fileData={JSON.parse(quoteMessage.msg)}
-                                    isCurrentUser={false}
-                                />
+                                <FileDisplay fileData={JSON.parse(quoteMessage.msg)} isCurrentUser={false} />
                             )}
                         </div>
-                        <Button size="icon-xs" className="absolute top-1 right-1" onClick={() => setQuoteMessage(undefined)}>
+                        <Button
+                            size="icon-xs"
+                            className="absolute top-1 right-1"
+                            onClick={() => setQuoteMessage(undefined)}
+                        >
                             <XIcon />
                         </Button>
                     </div>
                 )}
-                
+
                 <div className="flex gap-2 items-center shrink-0">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -149,17 +148,13 @@ export function MessageArea({
                             <AlertDialogHeader>
                                 <AlertDialogTitle>分享文件</AlertDialogTitle>
                                 <AlertDialogDescription className="w-full">
-                                    <iframe 
-                                        className="w-full" 
-                                        src="https://new-xes-pan.netlify.app/upload" 
+                                    <iframe
+                                        className="w-full"
+                                        src="https://new-xes-pan.netlify.app/upload"
                                         title="文件上传"
                                     />
                                     <p className="mt-2">请将文件在这里上传，然后把数据填入下方表单</p>
-                                    <Input 
-                                        placeholder="请输入给你的数据" 
-                                        ref={inputRef} 
-                                        className="mt-2"
-                                    />
+                                    <Input placeholder="请输入给你的数据" ref={inputRef} className="mt-2" />
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -179,7 +174,7 @@ export function MessageArea({
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
-                    
+
                     <Input
                         disabled={isSending || !isConnected}
                         value={input}
@@ -188,7 +183,7 @@ export function MessageArea({
                         placeholder="请输入文本"
                         className="flex-1"
                     />
-                    
+
                     <Button
                         onClick={() => {
                             if (input.trim()) {
