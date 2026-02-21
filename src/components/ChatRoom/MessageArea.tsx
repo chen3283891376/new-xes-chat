@@ -35,6 +35,7 @@ interface MessageAreaProps {
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     chatId: string;
     sendFile: (file: IFile) => void;
+    handleRecall: (message: ChatMessage) => void;
 }
 
 export function MessageArea({
@@ -48,6 +49,7 @@ export function MessageArea({
     onKeyDown,
     chatId,
     sendFile,
+    handleRecall,
 }: MessageAreaProps) {
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -99,6 +101,7 @@ export function MessageArea({
                             message={message}
                             currentUsername={currentUsername}
                             formatTime={formatTime}
+                            handleRecall={handleRecall}
                         />
                     ))
                 )}

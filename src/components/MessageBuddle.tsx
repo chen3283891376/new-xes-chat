@@ -17,12 +17,14 @@ export type Message = {
     msg: string;
     time: number;
     type?: 'name' | 'share';
+    recalled?: boolean;
 };
 
 type MessageBubbleProps = {
     message: Message;
     currentUsername: string;
     formatTime: (timestamp: number) => string;
+    handleRecall: (message: Message) => void;
 };
 
 const isImageFile = (filename: string): boolean => {
@@ -31,7 +33,7 @@ const isImageFile = (filename: string): boolean => {
     return ext ? imageExtensions.includes(ext) : false;
 };
 
-export const MessageBubble = ({ message, currentUsername, formatTime }: MessageBubbleProps) => {
+export const MessageBubble = ({ message, currentUsername, formatTime, handleRecall }: MessageBubbleProps) => {
     const isCurrentUser = message.username === currentUsername;
     const [imageError, setImageError] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -53,6 +55,12 @@ export const MessageBubble = ({ message, currentUsername, formatTime }: MessageB
 
     const isImage = fileData && isImageFile(fileData.name) && !imageError;
 
+    const handleDownload = () => {
+        if (downloadUrl) {
+            window.open(downloadUrl, '_blank');
+        }
+    };
+
     return (
         <div className={cn('flex mb-4', isCurrentUser ? 'justify-end' : 'justify-start')}>
             <div className={cn('max-w-[70%] flex items-start gap-3', isCurrentUser && 'flex-row-reverse')}>
@@ -70,24 +78,24 @@ export const MessageBubble = ({ message, currentUsername, formatTime }: MessageB
                         </div>
 
                         <div className={cn('flex items-end gap-2', isCurrentUser ? 'flex-row-reverse' : 'flex-row')}>
-                            <div
-                                className={cn(
-                                    !isImage && [
-                                        'rounded-2xl px-4 py-2 shadow-sm',
-                                        isCurrentUser
-                                            ? 'bg-primary text-(--color-background) rounded-br-none'
-                                            : 'bg-surface border border-border text-text-primary rounded-bl-none',
-                                    ],
-                                )}
-                            >
-                                {message.type !== 'share' ? (
-                                    <p className="text-sm wrap-break-word whitespace-pre-wrap">{message.msg}</p>
-                                ) : (
-                                    <div className="flex flex-col gap-1 w-full max-w-md">
-                                        {isImage ? (
-                                            <div className="relative group">
-                                                <ContextMenu>
-                                                    <ContextMenuTrigger>
+                            <ContextMenu>
+                                <ContextMenuTrigger>
+                                    <div
+                                        className={cn(
+                                            !isImage && [
+                                                'rounded-2xl px-4 py-2 shadow-sm',
+                                                isCurrentUser
+                                                    ? 'bg-primary text-background rounded-br-none'
+                                                    : 'bg-surface border border-border text-text-primary rounded-bl-none',
+                                            ],
+                                        )}
+                                    >
+                                        {message.type !== 'share' ? (
+                                            <p className="text-sm wrap-break-word whitespace-pre-wrap">{message.msg}</p>
+                                        ) : (
+                                            <div className="flex flex-col gap-1 w-full max-w-md">
+                                                {isImage ? (
+                                                    <div className="relative group">
                                                         <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
                                                             <DialogTrigger asChild>
                                                                 <img
@@ -126,67 +134,70 @@ export const MessageBubble = ({ message, currentUsername, formatTime }: MessageB
                                                         >
                                                             <DownloadIcon size={18} />
                                                         </a>
-                                                    </ContextMenuTrigger>
-
-                                                    <ContextMenuContent>
-                                                        <ContextMenuGroup>
-                                                            <ContextMenuItem
-                                                                onClick={() => (window.open(downloadUrl))}
-                                                            >
-                                                                下载
-                                                            </ContextMenuItem>
-                                                        </ContextMenuGroup>
-                                                    </ContextMenuContent>
-                                                </ContextMenu>
-                                            </div>
-                                        ) : (
-                                            <div
-                                                className={cn(
-                                                    'flex items-center gap-3 p-3 border rounded-lg transition-colors opacity-70',
-                                                )}
-                                            >
-                                                <div
-                                                    className={cn(
-                                                        'w-10 h-10 border rounded flex items-center justify-center shrink-0',
-                                                        isCurrentUser
-                                                            ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20'
-                                                            : 'bg-background border-border',
-                                                    )}
-                                                >
-                                                    <FileTextIcon
-                                                        size={20}
+                                                    </div>
+                                                ) : (
+                                                    <div
                                                         className={cn(
-                                                            isCurrentUser
-                                                                ? 'text-white/80 dark:text-black/80'
-                                                                : 'text-text-secondary',
+                                                            'flex items-center gap-3 p-3 border rounded-lg transition-colors opacity-70',
                                                         )}
-                                                    />
-                                                </div>
-                                                <div className="flex-1 min-w-25">
-                                                    <p className="text-sm font-medium truncate">
-                                                        {fileData?.name || '未知文件名'}
-                                                    </p>
-                                                    <p className="text-xs text-secondary">
-                                                        {fileData?.size || '未知大小'}
-                                                    </p>
-                                                </div>
-                                                <a
-                                                    href={downloadUrl}
-                                                    className={cn(
-                                                        'p-2 rounded transition-colors shrink-0',
-                                                        isCurrentUser && 'text-white dark:text-black',
-                                                    )}
-                                                    title="下载"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    <DownloadIcon size={18} />
-                                                </a>
+                                                    >
+                                                        <div
+                                                            className={cn(
+                                                                'w-10 h-10 border rounded flex items-center justify-center shrink-0',
+                                                                isCurrentUser
+                                                                    ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20'
+                                                                    : 'bg-background border-border',
+                                                            )}
+                                                        >
+                                                            <FileTextIcon
+                                                                size={20}
+                                                                className={cn(
+                                                                    isCurrentUser
+                                                                        ? 'text-white/80 dark:text-black/80'
+                                                                        : 'text-text-secondary',
+                                                                )}
+                                                            />
+                                                        </div>
+                                                        <div className="flex-1 min-w-25">
+                                                            <p className="text-sm font-medium truncate">
+                                                                {fileData?.name || '未知文件名'}
+                                                            </p>
+                                                            <p className="text-xs text-secondary">
+                                                                {fileData?.size || '未知大小'}
+                                                            </p>
+                                                        </div>
+                                                        <a
+                                                            href={downloadUrl}
+                                                            className={cn(
+                                                                'p-2 rounded transition-colors shrink-0',
+                                                                isCurrentUser && 'text-white dark:text-black',
+                                                            )}
+                                                            title="下载"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            <DownloadIcon size={18} />
+                                                        </a>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
+                                </ContextMenuTrigger>
+
+                                {(isImage || isCurrentUser) && (
+                                    <ContextMenuContent>
+                                        <ContextMenuGroup>
+                                            {isImage && downloadUrl && (
+                                                <ContextMenuItem onClick={handleDownload}>下载</ContextMenuItem>
+                                            )}
+                                            {isCurrentUser && (
+                                                <ContextMenuItem onClick={() => handleRecall(message)}>撤回</ContextMenuItem>
+                                            )}
+                                        </ContextMenuGroup>
+                                    </ContextMenuContent>
                                 )}
-                            </div>
+                            </ContextMenu>
                         </div>
                     </div>
                 </div>

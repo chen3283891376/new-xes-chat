@@ -6,6 +6,7 @@ import { ChatRoomSidebar } from '@/components/ChatRoom/ChatRoomSidebar';
 import { MessageArea } from './components/ChatRoom/MessageArea';
 import InitProfilePage from '@/pages/InitProfile.tsx';
 import type { KeyboardEvent } from 'react';
+import type { Message as ChatMessage } from '@/components/MessageBuddle';
 
 function App() {
     const {
@@ -20,7 +21,7 @@ function App() {
 
     const { chatId, setChatId, roomList, isCreatingRoom, createRoom, joinRoom, deleteRoom } = useRoomManager(26329675);
 
-    const { messages, isSending, sendMessage, sendFile } = useChatMessages(
+    const { messages, isSending, sendMessage, sendFile, recallMessage } = useChatMessages(
         chatId,
         typeof username === 'string' ? username : '',
     );
@@ -75,6 +76,7 @@ function App() {
                     onKeyDown={handleKeyDown}
                     chatId={chatId.toString()}
                     sendFile={sendFile}
+                    handleRecall={(message: ChatMessage) => recallMessage(message.time)}
                 />
             </>
         </div>

@@ -10,6 +10,19 @@ export interface IFile {
     time: string;
 }
 
+function deduplicateMessages(messages: ChatMessage[]): ChatMessage[] {
+    const messageMap = new Map<number, ChatMessage>();
+    
+    messages.forEach(msg => {
+        const existingMsg = messageMap.get(msg.time);
+        if (!existingMsg || msg.recalled) {
+            messageMap.set(msg.time, msg);
+        }
+    });
+    
+    return Array.from(messageMap.values()).sort((a, b) => a.time - b.time);
+}
+
 export const parseMessages = (allMessages: Record<string, string>): ChatMessage[] => {
     const parsed: ChatMessage[] = [];
     Object.entries(allMessages).forEach(([payload, timestampStr]) => {
@@ -21,13 +34,15 @@ export const parseMessages = (allMessages: Record<string, string>): ChatMessage[
                 msg: parsedJson.msg || '',
                 time,
                 type: parsedJson.type || undefined,
+                recalled: parsedJson.recalled || false,
             });
         } catch (e) {
             toast.error('解析消息失败');
             console.warn('解析消息失败:', e, payload);
         }
     });
-    return parsed.sort((a, b) => a.time - b.time);
+    
+    return deduplicateMessages(parsed);
 };
 
 export function useChatMessages(chatId: number, username: string) {
@@ -113,6 +128,7 @@ export function useChatMessages(chatId: number, username: string) {
                 username: username || '匿名用户',
                 msg: content.trim(),
                 time,
+                recalled: false,
             } as Message);
 
             await xRef.current.sendNum(payload, String(time));
@@ -140,6 +156,7 @@ export function useChatMessages(chatId: number, username: string) {
             msg: JSON.stringify(file),
             time: Date.now() / 1000,
             type: 'share',
+            recalled: false,
         };
         try {
             await xRef.current.sendNum(JSON.stringify(message), String(Date.now() / 1000));
@@ -154,10 +171,73 @@ export function useChatMessages(chatId: number, username: string) {
         }
     };
 
+    const recallMessage = async (messageTime: number, isAdmin?: boolean): Promise<boolean> => {
+        const x = xRef.current;
+        if (!x) {
+            toast.error('聊天未初始化，无法撤回消息');
+            return false;
+        }
+
+        const message = messages.find(m => m.time === messageTime);
+        if (!message) {
+            toast.error('消息不存在，无法撤回');
+            return false;
+        }
+
+        const currentUsername = username || '匿名用户';
+        if (message.username !== currentUsername && !isAdmin) {
+            toast.error('只能撤回自己发送的消息');
+            return false;
+        }
+
+        const now = Date.now() / 1000;
+        if (now - message.time > 120) {
+            toast.error('只能撤回2分钟内的消息');
+            return false;
+        }
+
+        try {
+            setMessages(prev => {
+                const updated = prev.map(m => 
+                    m.time === messageTime ? { ...m, recalled: true } : m
+                );
+                return deduplicateMessages(updated);
+            });
+
+            const recallPayload = JSON.stringify({
+                ...message,
+                recalled: true,
+                msg: `[该消息已撤回]`,
+            });
+
+            await x.sendNum(recallPayload, String(messageTime));
+
+            cacheManagerRef.current.clear(chatId);
+            const freshMessages = await x.getAllNum();
+            cacheManagerRef.current.set(chatId, freshMessages);
+            setMessages(parseMessages(freshMessages));
+
+            toast.success('消息撤回成功');
+            return true;
+        } catch (e) {
+            setMessages(prev => {
+                const rolledBack = prev.map(m => 
+                    m.time === messageTime ? { ...m, recalled: false } : m
+                );
+                return deduplicateMessages(rolledBack);
+            });
+            
+            toast.error('消息撤回失败');
+            console.error(`撤回消息失败: ${e}`);
+            return false;
+        }
+    };
+
     return {
         messages,
         isSending,
         sendMessage,
         sendFile,
+        recallMessage,
     };
 }
