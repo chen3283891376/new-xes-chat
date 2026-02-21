@@ -170,71 +170,69 @@ export const MessageBubble = ({
                                                         </a>
                                                     </div>
                                                 ) : (
-                                                    <div className='flex flex-col gap-2 p-3 border rounded-lg transition-colors opacity-70'>
-                                                    <div
-                                                        className={cn(
-                                                            'flex items-center gap-3',
-                                                        )}
-                                                    >
-                                                        <div
-                                                            className={cn(
-                                                                'w-10 h-10 border rounded flex items-center justify-center shrink-0',
-                                                                isCurrentUser
-                                                                    ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20'
-                                                                    : 'bg-background border-border',
-                                                            )}
-                                                        >
-                                                            {isAudio ? (
-                                                                <FileAudioIcon
-                                                                    size={20}
-                                                                    className={cn(
-                                                                        isCurrentUser
-                                                                            ? 'text-white/80 dark:text-black/80'
-                                                                            : 'text-text-secondary',
-                                                                    )}
-                                                                />
-                                                            ) : (
-                                                                <FileTextIcon
-                                                                    size={20}
-                                                                    className={cn(
-                                                                        isCurrentUser
-                                                                            ? 'text-white/80 dark:text-black/80'
-                                                                            : 'text-text-secondary',
-                                                                    )}
-                                                                />
-                                                            )}
+                                                    <div className="flex flex-col gap-2 p-3 border rounded-lg transition-colors opacity-70">
+                                                        <div className={cn('flex items-center gap-3')}>
+                                                            <div
+                                                                className={cn(
+                                                                    'w-10 h-10 border rounded flex items-center justify-center shrink-0',
+                                                                    isCurrentUser
+                                                                        ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20'
+                                                                        : 'bg-background border-border',
+                                                                )}
+                                                            >
+                                                                {isAudio ? (
+                                                                    <FileAudioIcon
+                                                                        size={20}
+                                                                        className={cn(
+                                                                            isCurrentUser
+                                                                                ? 'text-white/80 dark:text-black/80'
+                                                                                : 'text-text-secondary',
+                                                                        )}
+                                                                    />
+                                                                ) : (
+                                                                    <FileTextIcon
+                                                                        size={20}
+                                                                        className={cn(
+                                                                            isCurrentUser
+                                                                                ? 'text-white/80 dark:text-black/80'
+                                                                                : 'text-text-secondary',
+                                                                        )}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-25">
+                                                                <p className="text-sm font-medium truncate">
+                                                                    {fileData?.name || '未知文件名'}
+                                                                </p>
+                                                                <p className="text-xs text-secondary">
+                                                                    {fileData?.size || '未知大小'}
+                                                                </p>
+                                                            </div>
+                                                            <a
+                                                                href={downloadUrl}
+                                                                className={cn(
+                                                                    'p-2 rounded transition-colors shrink-0',
+                                                                    isCurrentUser && 'text-white dark:text-black',
+                                                                )}
+                                                                title="下载"
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
+                                                                <DownloadIcon size={18} />
+                                                            </a>
                                                         </div>
-                                                        <div className="flex-1 min-w-25">
-                                                            <p className="text-sm font-medium truncate">
-                                                                {fileData?.name || '未知文件名'}
-                                                            </p>
-                                                            <p className="text-xs text-secondary">
-                                                                {fileData?.size || '未知大小'}
-                                                            </p>
-                                                        </div>
-                                                        <a
-                                                            href={downloadUrl}
-                                                            className={cn(
-                                                                'p-2 rounded transition-colors shrink-0',
-                                                                isCurrentUser && 'text-white dark:text-black',
-                                                            )}
-                                                            title="下载"
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                        >
-                                                            <DownloadIcon size={18} />
-                                                        </a>
-                                                    </div>
-                                                    <audio
-                                                        src={fileData?.link}
-                                                        controls
-                                                        className={cn(
-                                                            'w-full h-10',
-                                                            isCurrentUser ? 'bg-white/10' : 'bg-background',
+                                                        {isAudio && (
+                                                            <audio
+                                                                src={fileData?.link}
+                                                                controls
+                                                                className={cn(
+                                                                    'w-full h-10',
+                                                                    isCurrentUser ? 'bg-white/10' : 'bg-background',
+                                                                )}
+                                                                onError={() => setAudioError(true)}
+                                                                onLoad={resetAudioError}
+                                                            />
                                                         )}
-                                                        onError={() => setAudioError(true)}
-                                                        onLoad={resetAudioError}
-                                                    />
                                                     </div>
                                                 )}
                                             </div>
