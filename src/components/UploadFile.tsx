@@ -1,10 +1,6 @@
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field.tsx';
-import { Input } from '@/components/ui/input.tsx';
-
-interface UploadFileProps {
-    setSelectedFile: (value: File | null) => void;
-    disabled?: boolean;
-}
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import type { UploadFileProps } from "@/lib/types";
 
 export default function UploadFile({ setSelectedFile, disabled }: UploadFileProps) {
     return (
@@ -14,9 +10,9 @@ export default function UploadFile({ setSelectedFile, disabled }: UploadFileProp
                 <Input
                     id="file"
                     type="file"
-                    onChange={e => {
+                    onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file != null) {
+                        if (file !== undefined && file.size > 0) {
                             setSelectedFile(file);
                         }
                     }}

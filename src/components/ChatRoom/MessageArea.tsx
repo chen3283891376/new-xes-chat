@@ -4,8 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FileUpIcon, SendIcon, XIcon } from 'lucide-react';
 import { MessageBubble } from '@/components/MessageBuddle';
-import { type Message as ChatMessage } from '@/components/FileDisplay';
-import type { IFile } from '@/hooks/useChatMessages';
+import type { Message as ChatMessage, IFile } from '@/lib/types';
 import { FileDisplay } from '@/components/FileDisplay';
 import UploadFile from '@/components/UploadFile.tsx';
 import {
