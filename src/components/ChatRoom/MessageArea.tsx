@@ -100,7 +100,6 @@ export function MessageArea({
             sendFile(data);
 
             setOpen(false);
-            setTimeout(() => setSelectedFile(null), 300);
         } catch {
             // 无需处理
         } finally {
