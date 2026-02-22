@@ -78,7 +78,7 @@ export function ChatRoomSidebar({
     const handleRename = () => {
         if (!renameInputValue.trim()) return;
         const newRoomList = [...roomList];
-        const roomIndex = roomList.findIndex(room => room.id === renamingRoomId);
+        const roomIndex = roomList.findIndex((room) => room.id === renamingRoomId);
         if (roomIndex >= 0) {
             newRoomList[roomIndex].title = renameInputValue;
             setRoomList(newRoomList);
@@ -133,8 +133,8 @@ export function ChatRoomSidebar({
                                                     <LogInIcon />
                                                 </ContextMenuShortcut>
                                             </ContextMenuItem>
-                                            
-                                            <ContextMenuItem 
+
+                                            <ContextMenuItem
                                                 disabled={!isConnected}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -274,38 +274,41 @@ export function ChatRoomSidebar({
                 </div>
             </div>
 
-            <Dialog open={renamingRoomId !== null} onOpenChange={(open) => {
-                if (!open) {
-                    setRenamingRoomId(null);
-                    setRenameInputValue("");
-                }
-            }}>
+            <Dialog
+                open={renamingRoomId !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setRenamingRoomId(null);
+                        setRenameInputValue("");
+                    }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>重命名房间</DialogTitle>
                     </DialogHeader>
-                    <Input 
+                    <Input
                         placeholder="请输入新的房间名"
                         value={renameInputValue}
                         autoFocus
-                        onChange={e => setRenameInputValue(e.target.value)}
+                        onChange={(e) => setRenameInputValue(e.target.value)}
                         onKeyDown={(e) => {
-                            if (e.key === 'Enter' && renameInputValue.trim()) {
+                            if (e.key === "Enter" && renameInputValue.trim()) {
                                 handleRename();
                             }
                         }}
                     />
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => {
-                            setRenamingRoomId(null);
-                            setRenameInputValue("");
-                        }}>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setRenamingRoomId(null);
+                                setRenameInputValue("");
+                            }}
+                        >
                             取消
                         </Button>
-                        <Button 
-                            onClick={handleRename}
-                            disabled={!renameInputValue.trim()}
-                        >
+                        <Button onClick={handleRename} disabled={!renameInputValue.trim()}>
                             确认
                         </Button>
                     </DialogFooter>
