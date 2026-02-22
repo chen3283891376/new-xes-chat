@@ -12,7 +12,7 @@ if (!rootElement) {
 const root = createRoot(rootElement);
 root.render(
     <StrictMode>
-        <Toaster />
+        <Toaster position="top-center" richColors />
         <App />
     </StrictMode>,
 );

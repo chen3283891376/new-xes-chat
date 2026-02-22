@@ -64,7 +64,6 @@ export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
                                     alt={fileData.name}
                                     className={cn(
                                         "max-w-full max-h-64 rounded-t-2xl object-contain cursor-zoom-in",
-
                                         isCurrentUser ? "rounded-bl-2xl" : "rounded-br-2xl",
                                     )}
                                     onError={() => {
@@ -76,7 +75,10 @@ export const FileDisplay = ({ fileData, isCurrentUser }: FileDisplayProps) => {
                                 <video
                                     src={fileData.link}
                                     controls
-                                    className="max-w-full max-h-64 rounded-t-2xl rounded-br-2xl object-contain cursor-zoom-in"
+                                    className={cn(
+                                        "max-w-full max-h-64 rounded-t-2xl object-contain cursor-zoom-in",
+                                        isCurrentUser ? "rounded-bl-2xl" : "rounded-br-2xl",
+                                    )}
                                     onError={() => {
                                         setVideoError(true);
                                     }}
