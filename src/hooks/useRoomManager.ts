@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { XESCloudValue } from '@/lib/XesCloud';
 import { parseMessages } from './useChatMessages';
-import type { Message } from '@/components/MessageBuddle';
+import type { Message } from '@/components/FileDisplay';
 
 type Room = {
     id: number;

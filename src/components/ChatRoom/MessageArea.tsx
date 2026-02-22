@@ -17,7 +17,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog.tsx';
-import { toast } from 'sonner';
 import { useFileUpload } from '@/hooks/useFileUpload';
 
 const formatTime = (timestamp: number) => {
