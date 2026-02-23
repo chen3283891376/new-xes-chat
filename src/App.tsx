@@ -95,8 +95,8 @@ export default function App() {
 
             window.location.href = "/";
         } catch (error) {
-            console.error("注销失败：", error);
-            toast.error("注销失败，请重试");
+            console.error("退出登录失败：", error);
+            toast.error("退出登录失败，请重试");
         }
     }, []);
 

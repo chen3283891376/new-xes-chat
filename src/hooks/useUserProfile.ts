@@ -4,16 +4,32 @@ import type { UserProfile } from "@/lib/types/user";
 import { XESCloudValue } from "@/lib/XesCloud";
 import { userProfileDB } from "@/lib/db/userProfileDB";
 import { toast } from "sonner";
-import { md5 } from "hash-wasm";
 
-export async function generateUserId(username: string) {
-    if (username === null || username === undefined || username.trim() === "") {
+const CROCKFORD_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+async function generateUserId(username: string): Promise<string> {
+    if (!username?.trim()) {
         throw new Error("用户名不能为空");
     }
 
-    const uuid = crypto.randomUUID();
-    const usernameMD5 = await md5(username);
-    return `${usernameMD5}-${uuid}`;
+    const encoder = new TextEncoder();
+    const data = encoder.encode(username + Date.now() + Math.random());
+
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = new Uint8Array(hashBuffer);
+
+    let num = BigInt(0);
+    for (let i = 0; i < 5; i++) {
+        num = (num << BigInt(8)) | BigInt(hashArray[i]);
+    }
+
+    let id = "";
+    for (let i = 0; i < 7; i++) {
+        id = CROCKFORD_ALPHABET[Number(num & BigInt(31))] + id;
+        num = num >> BigInt(5);
+    }
+
+    return id;
 }
 
 export function useUserProfile() {
