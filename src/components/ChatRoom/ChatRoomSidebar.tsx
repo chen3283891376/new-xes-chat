@@ -17,6 +17,16 @@ import { useState, memo } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import {
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialog,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 interface ChatRoomSidebarProps {
     roomList: Room[];
@@ -260,17 +270,33 @@ const ChatRoomSidebar = memo(function ChatRoomSidebar({
                             <ContextMenuContent>
                                 <ContextMenuGroup>
                                     <ContextMenuItem onClick={() => handleMenuClick("edit")}>
-                                        编辑资料
+                                        编辑
                                         <ContextMenuShortcut>
                                             <UserIcon />
                                         </ContextMenuShortcut>
                                     </ContextMenuItem>
-                                    <ContextMenuItem onClick={() => handleMenuClick("logout")}>
-                                        注销账号
-                                        <ContextMenuShortcut>
-                                            <LogOutIcon />
-                                        </ContextMenuShortcut>
-                                    </ContextMenuItem>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger>
+                                            <ContextMenuItem onClick={() => handleMenuClick("logout")}>
+                                                退出
+                                                <ContextMenuShortcut>
+                                                    <LogOutIcon />
+                                                </ContextMenuShortcut>
+                                            </ContextMenuItem>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>你确定要退出登录吗？</AlertDialogTitle>
+                                            </AlertDialogHeader>
+
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel variant="outline">取消</AlertDialogCancel>
+                                                <AlertDialogAction variant="destructive" onClick={onLogout}>
+                                                    登出
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </ContextMenuGroup>
                             </ContextMenuContent>
                         </ContextMenu>

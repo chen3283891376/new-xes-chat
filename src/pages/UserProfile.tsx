@@ -110,6 +110,8 @@ export default function UserProfilePage({ open, onOpenChange }: UserProfileProps
                                 />
                                 <p className="text-sm text-gray-500">点击头像上传</p>
                             </label>
+
+                            <label className="text-gray-500">用户ID：{currentProfile.userId}</label>
                         </div>
 
                         <div className="space-y-2">
