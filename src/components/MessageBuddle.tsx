@@ -12,7 +12,7 @@ import {
 import { FileDisplay } from "./FileDisplay";
 import type { Message } from "@/lib/types";
 import { toast } from "sonner";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import type { UserProfileInMessageBuddle } from "@/lib/types/user";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -73,28 +73,43 @@ export function MessageBubble({
     }, [fileData]);
 
     const [userProfile, setUserProfile] = useState<UserProfileInMessageBuddle | null>(null);
+    const [quoteMessageUsername, setQuoteMessageUsername] = useState<string>('');
 
-    const userId = useMemo(() => {
+    const getUserId = useCallback((username: string) => {
         const usernamePattern = /^user_([^_]+)/;
-        const username = message.username || "";
         const match = username.match(usernamePattern);
         return match ? match[1] : null;
-    }, [message.username]);
+    }, []);
 
-    useEffect(() => {
-        const getUserInfo = async () => {
-            const username = message.username || "";
+    const fetchProfile = useCallback(
+        async (username: string) => {
+            const userId = getUserId(username || "");
             if (userId) {
                 const profile = await profileInstance.getUserProfileWithUserID(userId);
-                if (profile !== null) setUserProfile(profile);
-                else setUserProfile({ username, avatar: undefined });
+                return profile ?? { username, avatar: undefined };
+            }
+            return { username, avatar: undefined };
+        },
+        [getUserId, profileInstance],
+    );
+
+    useEffect(() => {
+        const load = async () => {
+            const username = message.username || "";
+            const profile = await fetchProfile(username);
+            setUserProfile(profile);
+
+            if (quoteMessage) {
+                const qUsername = quoteMessage.username || "";
+                const qProfile = await fetchProfile(qUsername);
+                setQuoteMessageUsername(qProfile?.username || qUsername);
             } else {
-                setUserProfile({ username, avatar: undefined });
+                setQuoteMessageUsername("");
             }
         };
 
-        getUserInfo();
-    }, [message.username, userId, profileInstance]);
+        void load();
+    }, [message.username, quoteMessage, fetchProfile]);
 
     return (
         <div className={cn("flex mb-4", isCurrentUser ? "justify-end" : "justify-start")} key={keyString}>
@@ -137,7 +152,7 @@ export function MessageBubble({
                                                         : "bg-slate-50 border-slate-400 text-slate-800",
                                                 )}
                                             >
-                                                <p className="font-bold mb-0.5">@{quoteMessage.username}</p>
+                                                <p className="font-bold mb-0.5">@{quoteMessageUsername}</p>
                                                 <div className="prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
                                                     {quoteMessage.type !== "share" ? (
                                                         quoteMessage.msg
