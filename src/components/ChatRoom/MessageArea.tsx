@@ -116,13 +116,13 @@ export function MessageArea({
         if (!isOpen) setSelectedFile(null);
     };
 
-const getUserId = useCallback((username: string) => {
+    const getUserId = useCallback((username: string) => {
         const usernamePattern = /^user_([^_]+)/;
         const match = username.match(usernamePattern);
         return match ? match[1] : null;
     }, []);
 
-const fetchProfile = useCallback(
+    const fetchProfile = useCallback(
         async (username: string) => {
             const userId = getUserId(username || "");
             if (userId) {
@@ -139,7 +139,7 @@ const fetchProfile = useCallback(
             if (quoteMessage) {
                 const qUsername = quoteMessage.username || "";
                 const quoteMessageUserId = quoteMessage.username?.match(/^user_([^_]+)(?:_.*)?$/);
-                
+
                 if (quoteMessageUserId) {
                     const qProfile = await fetchProfile(qUsername);
                     setQuoteMessageUsername(qProfile.username);
@@ -147,7 +147,7 @@ const fetchProfile = useCallback(
                     setQuoteMessageUsername(qUsername);
                 }
             } else {
-                setQuoteMessageUsername(undefined); 
+                setQuoteMessageUsername(undefined);
             }
         };
 

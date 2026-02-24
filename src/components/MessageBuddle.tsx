@@ -102,7 +102,7 @@ export function MessageBubble({
             if (quoteMessage) {
                 const qUsername = quoteMessage.username || "";
                 const quoteMessageUserId = quoteMessage.username?.match(/^user_([^_]+)(?:_.*)?$/);
-                
+
                 if (quoteMessageUserId) {
                     const qProfile = await fetchProfile(qUsername);
                     setQuoteMessageUsername(qProfile.username);
@@ -110,7 +110,7 @@ export function MessageBubble({
                     setQuoteMessageUsername(qUsername);
                 }
             } else {
-                setQuoteMessageUsername(null); 
+                setQuoteMessageUsername(null);
             }
         };
 

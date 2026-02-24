@@ -6,7 +6,6 @@ import type { Message } from "@/lib/types";
 
 const DEFAULT_ROOM_ID = 185655560;
 const INVALID_ROOM_ID = 26329675;
-const RANDOM_PROJECT_ID_MAX = 1000000000;
 const MS_TO_SECONDS = 1000;
 
 interface Room {
