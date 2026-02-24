@@ -12,7 +12,7 @@ import {
 import { FileDisplay } from "./FileDisplay";
 import type { Message } from "@/lib/types";
 import { toast } from "sonner";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import type { UserProfileInMessageBuddle } from "@/lib/types/user";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -36,7 +36,7 @@ export function MessageBubble({
     keyString,
 }: MessageBubbleProps) {
     const isCurrentUser = message.username === currentUsername;
-    const profileInstance = useUserProfile();
+    const profileInstance = useRef(useUserProfile()).current;
 
     const { fileData, isMedia } = useMemo(() => {
         if (message.type === "share") {
