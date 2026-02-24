@@ -36,7 +36,7 @@ export function MessageBubble({
     keyString,
 }: MessageBubbleProps) {
     const isCurrentUser = message.username === currentUsername;
-    const profileInstance = useRef(useUserProfile()).current;
+    const profileInstanceRef = useRef(useUserProfile());
 
     const { fileData, isMedia } = useMemo(() => {
         if (message.type === "share") {
@@ -68,12 +68,12 @@ export function MessageBubble({
 
     const downloadUrl = useMemo(() => {
         return fileData && fileData.link && fileData.link.includes("python_assets/")
-            ? `https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData.name}&file=${fileData.link.split("python_assets/")[1]}`
+            ? `https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name= ${fileData.name}&file=${fileData.link.split("python_assets/")[1]}`
             : "";
     }, [fileData]);
 
     const [userProfile, setUserProfile] = useState<UserProfileInMessageBuddle | null>(null);
-    const [quoteMessageUsername, setQuoteMessageUsername] = useState<string>('');
+    const [quoteMessageUsername, setQuoteMessageUsername] = useState<string | null>(null);
 
     const getUserId = useCallback((username: string) => {
         const usernamePattern = /^user_([^_]+)/;
@@ -85,12 +85,12 @@ export function MessageBubble({
         async (username: string) => {
             const userId = getUserId(username || "");
             if (userId) {
-                const profile = await profileInstance.getUserProfileWithUserID(userId);
+                const profile = await profileInstanceRef.current.getUserProfileWithUserID(userId);
                 return profile ?? { username, avatar: undefined };
             }
             return { username, avatar: undefined };
         },
-        [getUserId, profileInstance],
+        [getUserId],
     );
 
     useEffect(() => {
@@ -101,10 +101,16 @@ export function MessageBubble({
 
             if (quoteMessage) {
                 const qUsername = quoteMessage.username || "";
-                const qProfile = await fetchProfile(qUsername);
-                setQuoteMessageUsername(qProfile?.username || qUsername);
+                const quoteMessageUserId = quoteMessage.username?.match(/^user_([^_]+)(?:_.*)?$/);
+
+                if (quoteMessageUserId) {
+                    const qProfile = await fetchProfile(qUsername);
+                    setQuoteMessageUsername(qProfile.username);
+                } else {
+                    setQuoteMessageUsername(qUsername);
+                }
             } else {
-                setQuoteMessageUsername("");
+                setQuoteMessageUsername(null);
             }
         };
 
@@ -152,7 +158,9 @@ export function MessageBubble({
                                                         : "bg-slate-50 border-slate-400 text-slate-800",
                                                 )}
                                             >
-                                                <p className="font-bold mb-0.5">@{quoteMessageUsername}</p>
+                                                <p className="font-bold mb-0.5">
+                                                    @{quoteMessageUsername || quoteMessage.username}
+                                                </p>
                                                 <div className="prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
                                                     {quoteMessage.type !== "share" ? (
                                                         quoteMessage.msg

@@ -205,7 +205,10 @@ export class XESCloudValue {
         });
     }
 
-    async getAllNum(timeout: number = DEFAULT_TIMEOUT): Promise<Record<string, string>> {
+    async getAllNum(timeout: number = DEFAULT_TIMEOUT, signal?: AbortSignal): Promise<Record<string, string>> {
+        // 检查是否已取消请求
+        if (signal?.aborted) return {};
+
         const cached = globalCache.get(this.projectId);
         if (cached !== undefined && Date.now() - cached.timestamp < CACHE_TTL) {
             return cached.data;
