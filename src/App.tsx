@@ -70,7 +70,7 @@ export default function App() {
 
     const handleStartCreateRoom = useCallback(() => {
         if (currentProfile?.username) {
-            startCreateRoom(currentProfile.username);
+            startCreateRoom(currentProfile ? `user_${currentProfile.userId}` : "");
         }
     }, [currentProfile, startCreateRoom]);
 

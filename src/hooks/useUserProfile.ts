@@ -38,28 +38,6 @@ export function useUserProfile() {
         return storedProfile ? JSON.parse(storedProfile) : null;
     });
 
-    useEffect(() => {
-        async function loadUserProfile() {
-            const storedUserId = localStorage.getItem("userId");
-            if (storedUserId?.trim() && !currentProfile) {
-                try {
-                    // 先尝试从本地IndexedDB获取
-                    const cachedProfile = await userProfileDB.getProfile(storedUserId);
-                    if (cachedProfile) {
-                        setCurrentProfile(cachedProfile);
-                        localStorage.setItem("currentProfile", JSON.stringify(cachedProfile));
-                    } else {
-                        await getUserProfileWithCurrentUserID();
-                    }
-                } catch (error) {
-                    console.error("自动加载用户资料失败：", error);
-                }
-            }
-        }
-
-        loadUserProfile();
-    }, [currentProfile]);
-
     const initUserProfile = useCallback(async (username: string, avatar: string) => {
         // 判断用户名或头像是否为空
         if (username === null || username === undefined || username.trim() === "") {
@@ -247,6 +225,28 @@ export function useUserProfile() {
         },
         [currentProfile],
     );
+
+    useEffect(() => {
+        async function loadUserProfile() {
+            const storedUserId = localStorage.getItem("userId");
+            if (storedUserId?.trim() && !currentProfile) {
+                try {
+                    // 先尝试从本地IndexedDB获取
+                    const cachedProfile = await userProfileDB.getProfile(storedUserId);
+                    if (cachedProfile) {
+                        setCurrentProfile(cachedProfile);
+                        localStorage.setItem("currentProfile", JSON.stringify(cachedProfile));
+                    } else {
+                        await getUserProfileWithCurrentUserID();
+                    }
+                } catch (error) {
+                    console.error("自动加载用户资料失败：", error);
+                }
+            }
+        }
+
+        loadUserProfile();
+    }, [currentProfile, getUserProfileWithCurrentUserID]);
 
     return {
         currentProfile,

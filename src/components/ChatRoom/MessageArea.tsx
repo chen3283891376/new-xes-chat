@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, type KeyboardEvent } from "react";
+import { useRef, useEffect, useState, type KeyboardEvent, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { Progress } from "@/components/ui/progress";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
@@ -54,11 +55,13 @@ export function MessageArea({
     handleRecall,
 }: MessageAreaProps) {
     const [quoteMessage, setQuoteMessage] = useState<ChatMessage | undefined>(undefined);
+    const [quoteMessageUsername, setQuoteMessageUsername] = useState<string | undefined>(undefined);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [userScrolled, setUserScrolled] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const { upload, isUploading, uploadProgress } = useFileUpload();
     const [open, setOpen] = useState(false);
+    const profileInstanceRef = useRef(useUserProfile());
 
     useEffect(() => {
         const viewport = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]');
@@ -113,6 +116,44 @@ export function MessageArea({
         if (!isOpen) setSelectedFile(null);
     };
 
+const getUserId = useCallback((username: string) => {
+        const usernamePattern = /^user_([^_]+)/;
+        const match = username.match(usernamePattern);
+        return match ? match[1] : null;
+    }, []);
+
+const fetchProfile = useCallback(
+        async (username: string) => {
+            const userId = getUserId(username || "");
+            if (userId) {
+                const profile = await profileInstanceRef.current.getUserProfileWithUserID(userId);
+                return profile ?? { username, avatar: undefined };
+            }
+            return { username, avatar: undefined };
+        },
+        [getUserId],
+    );
+
+    useEffect(() => {
+        const load = async () => {
+            if (quoteMessage) {
+                const qUsername = quoteMessage.username || "";
+                const quoteMessageUserId = quoteMessage.username?.match(/^user_([^_]+)(?:_.*)?$/);
+                
+                if (quoteMessageUserId) {
+                    const qProfile = await fetchProfile(qUsername);
+                    setQuoteMessageUsername(qProfile.username);
+                } else {
+                    setQuoteMessageUsername(qUsername);
+                }
+            } else {
+                setQuoteMessageUsername(undefined); 
+            }
+        };
+
+        void load();
+    }, [quoteMessage, fetchProfile]);
+
     return (
         <div className="flex-1 flex flex-col h-full">
             <div className="p-3 flex gap-2 border-b items-end shrink-0">
@@ -145,7 +186,7 @@ export function MessageArea({
             <div className="p-3 flex flex-col bg-white border-t shrink-0 max-h-45 overflow-y-auto">
                 {quoteMessage && (
                     <div className="relative text-xs p-2 mb-2 rounded border-l-4 bg-slate-50 border-slate-400 text-slate-800">
-                        <p className="font-bold mb-0.5">@{quoteMessage.username}</p>
+                        <p className="font-bold mb-0.5">@{quoteMessageUsername ?? quoteMessage.username}</p>
                         <div className="prose prose-sm max-w-none max-h-24 overflow-y-auto prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
                             {quoteMessage.type !== "share" ? (
                                 quoteMessage.msg

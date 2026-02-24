@@ -12,7 +12,7 @@ import {
 import { FileDisplay } from "./FileDisplay";
 import type { Message } from "@/lib/types";
 import { toast } from "sonner";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import type { UserProfileInMessageBuddle } from "@/lib/types/user";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -68,49 +68,54 @@ export function MessageBubble({
 
     const downloadUrl = useMemo(() => {
         return fileData && fileData.link && fileData.link.includes("python_assets/")
-            ? `https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData.name}&file=${fileData.link.split("python_assets/")[1]}`
+            ? `https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name= ${fileData.name}&file=${fileData.link.split("python_assets/")[1]}`
             : "";
     }, [fileData]);
 
     const [userProfile, setUserProfile] = useState<UserProfileInMessageBuddle | null>(null);
     const [quoteMessageUsername, setQuoteMessageUsername] = useState<string | null>(null);
 
-    const userId = useMemo(() => {
+    const getUserId = useCallback((username: string) => {
         const usernamePattern = /^user_([^_]+)/;
-        const username = message.username || "";
         const match = username.match(usernamePattern);
         return match ? match[1] : null;
-    }, [message.username]);
+    }, []);
 
-    useEffect(() => {
-        const getUserInfo = async () => {
-            const username = message.username || "";
+    const fetchProfile = useCallback(
+        async (username: string) => {
+            const userId = getUserId(username || "");
             if (userId) {
                 const profile = await profileInstanceRef.current.getUserProfileWithUserID(userId);
-                if (profile !== null) setUserProfile(profile);
-                else setUserProfile({ username, avatar: undefined });
-            } else {
-                setUserProfile({ username, avatar: undefined });
+                return profile ?? { username, avatar: undefined };
             }
-        };
+            return { username, avatar: undefined };
+        },
+        [getUserId],
+    );
 
-        const getQuoteMessageUsernameInfo = async () => {
-            const username = quoteMessage?.username || "";
+    useEffect(() => {
+        const load = async () => {
+            const username = message.username || "";
+            const profile = await fetchProfile(username);
+            setUserProfile(profile);
+
             if (quoteMessage) {
+                const qUsername = quoteMessage.username || "";
                 const quoteMessageUserId = quoteMessage.username?.match(/^user_([^_]+)(?:_.*)?$/);
+                
                 if (quoteMessageUserId) {
-                    const profile = await profileInstanceRef.current.getUserProfileWithUserID(quoteMessageUserId[1]);
-                    if (profile !== null) setQuoteMessageUsername(profile.username);
-                    else setQuoteMessageUsername(username);
+                    const qProfile = await fetchProfile(qUsername);
+                    setQuoteMessageUsername(qProfile.username);
                 } else {
-                    setQuoteMessageUsername(username);
+                    setQuoteMessageUsername(qUsername);
                 }
+            } else {
+                setQuoteMessageUsername(null); 
             }
         };
 
-        getUserInfo();
-        getQuoteMessageUsernameInfo();
-    }, [message.username, userId, quoteMessage, profileInstanceRef]);
+        void load();
+    }, [message.username, quoteMessage, fetchProfile]);
 
     return (
         <div className={cn("flex mb-4", isCurrentUser ? "justify-end" : "justify-start")} key={keyString}>
