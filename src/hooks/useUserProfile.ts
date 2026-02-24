@@ -226,7 +226,6 @@ export function useUserProfile() {
         [currentProfile],
     );
 
-    
     useEffect(() => {
         async function loadUserProfile() {
             const storedUserId = localStorage.getItem("userId");
