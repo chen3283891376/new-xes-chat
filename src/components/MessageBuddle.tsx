@@ -12,7 +12,7 @@ import {
 import { FileDisplay } from "./FileDisplay";
 import type { Message } from "@/lib/types";
 import { toast } from "sonner";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import type { UserProfileInMessageBuddle } from "@/lib/types/user";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -36,7 +36,7 @@ export function MessageBubble({
     keyString,
 }: MessageBubbleProps) {
     const isCurrentUser = message.username === currentUsername;
-    const profileInstance = useUserProfile();
+    const profileInstanceRef = useRef(useUserProfile());
 
     const { fileData, isMedia } = useMemo(() => {
         if (message.type === "share") {
@@ -73,6 +73,7 @@ export function MessageBubble({
     }, [fileData]);
 
     const [userProfile, setUserProfile] = useState<UserProfileInMessageBuddle | null>(null);
+    const [quoteMessageUsername, setQuoteMessageUsername] = useState<string | null>(null);
 
     const userId = useMemo(() => {
         const usernamePattern = /^user_([^_]+)/;
@@ -85,7 +86,7 @@ export function MessageBubble({
         const getUserInfo = async () => {
             const username = message.username || "";
             if (userId) {
-                const profile = await profileInstance.getUserProfileWithUserID(userId);
+                const profile = await profileInstanceRef.current.getUserProfileWithUserID(userId);
                 if (profile !== null) setUserProfile(profile);
                 else setUserProfile({ username, avatar: undefined });
             } else {
@@ -93,8 +94,23 @@ export function MessageBubble({
             }
         };
 
+        const getQuoteMessageUsernameInfo = async () => {
+            const username = quoteMessage?.username || "";
+            if (quoteMessage) {
+                const quoteMessageUserId = quoteMessage.username?.match(/^user_([^_]+)(?:_.*)?$/);
+                if (quoteMessageUserId) {
+                    const profile = await profileInstanceRef.current.getUserProfileWithUserID(quoteMessageUserId[1]);
+                    if (profile !== null) setQuoteMessageUsername(profile.username);
+                    else setQuoteMessageUsername(username);
+                } else {
+                    setQuoteMessageUsername(username);
+                }
+            }
+        };
+
         getUserInfo();
-    }, [message.username, userId, profileInstance]);
+        getQuoteMessageUsernameInfo();
+    }, [message.username, userId, quoteMessage, profileInstanceRef]);
 
     return (
         <div className={cn("flex mb-4", isCurrentUser ? "justify-end" : "justify-start")} key={keyString}>
@@ -137,7 +153,9 @@ export function MessageBubble({
                                                         : "bg-slate-50 border-slate-400 text-slate-800",
                                                 )}
                                             >
-                                                <p className="font-bold mb-0.5">@{quoteMessage.username}</p>
+                                                <p className="font-bold mb-0.5">
+                                                    @{quoteMessageUsername || quoteMessage.username}
+                                                </p>
                                                 <div className="prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
                                                     {quoteMessage.type !== "share" ? (
                                                         quoteMessage.msg

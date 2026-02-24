@@ -16,22 +16,22 @@ interface Room {
 
 interface UseRoomManagerReturn {
     chatId: number;
-    setChatId: (_id: number) => void;
+    setChatId: (id: number) => void;
     roomList: Room[];
-    setRoomList: (_list: Room[]) => void;
+    setRoomList: (list: Room[]) => void;
     isCreatingRoom: boolean;
-    createRoom: (_username: string, _roomName: string) => Promise<number | null>;
-    joinRoom: (_roomIdInput: string | null) => Promise<void>;
-    deleteRoom: (_roomId: number) => void;
+    createRoom: (username: string, roomName: string) => Promise<number | null>;
+    joinRoom: (roomIdInput: string | null) => Promise<void>;
+    deleteRoom: (roomId: number) => void;
     showNameInput: boolean;
-    setShowNameInput: (_show: boolean) => void;
+    setShowNameInput: (show: boolean) => void;
     showIDInput: boolean;
-    setShowIDInput: (_show: boolean) => void;
+    setShowIDInput: (show: boolean) => void;
     pendingRoomName: string;
-    setPendingRoomName: (_name: string) => void;
+    setPendingRoomName: (name: string) => void;
     pendingRoomID: string;
-    setPendingRoomID: (_name: string) => void;
-    startCreateRoom: (_username: string) => void;
+    setPendingRoomID: (name: string) => void;
+    startCreateRoom: (username: string) => void;
     startJoinRoom: () => void;
     confirmCreateRoom: () => Promise<void>;
     cancelCreateRoom: () => void;
@@ -75,14 +75,16 @@ export function useRoomManager(initialChatId: number): UseRoomManagerReturn {
     }, [roomList]);
 
     const createRoom = useCallback(async (username: string, roomName: string): Promise<number | null> => {
-        if (roomName.length === 0) {
+        if (!roomName?.trim()) {
             toast.error("房间名称不能为空");
             return null;
         }
 
         setIsCreatingRoom(true);
         try {
-            const projectId = String(Math.floor(Math.random() * RANDOM_PROJECT_ID_MAX));
+            const array = new Uint32Array(1);
+            crypto.getRandomValues(array);
+            const projectId = array[0].toString();
             const roomId = Number(projectId);
             const finalRoomName = roomName.length > 0 ? roomName : `房间${String(roomId)}`;
 
@@ -136,18 +138,13 @@ export function useRoomManager(initialChatId: number): UseRoomManagerReturn {
 
     const joinRoom = useCallback(
         async (roomIdInput: string | null): Promise<void> => {
-            if (roomIdInput === null || roomIdInput.length === 0) return;
+            if (!roomIdInput?.trim()) return;
 
             const roomId = Number(roomIdInput);
             if (!roomList.some((room) => room.id === roomId)) {
                 const newXesInstance = new XESCloudValue(roomIdInput);
                 const messages = parseMessages(await newXesInstance.getAllNum());
-                let roomName = `房间${String(roomId)}`;
-                const nameMessage = messages.find((message) => message.type === "name");
-                const msgContent = nameMessage?.msg;
-                if (msgContent !== undefined && msgContent.length > 0) {
-                    roomName = msgContent;
-                }
+                const roomName = messages.find((message) => message.type === "name")?.msg?.trim() || `房间${roomId}`;
 
                 setRoomList((prev) => [...prev, { id: roomId, title: roomName }]);
                 setChatId(roomId);

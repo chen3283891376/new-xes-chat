@@ -101,7 +101,7 @@ export function MessageArea({
 
             setOpen(false);
         } catch {
-            // 无需处理
+            // 忽略
         } finally {
             setSelectedFile(null);
             setOpen(false);

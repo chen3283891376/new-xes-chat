@@ -25,8 +25,8 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
-} from "../ui/alert-dialog";
+    AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 
 interface ChatRoomSidebarProps {
     roomList: Room[];
@@ -78,6 +78,7 @@ const ChatRoomSidebar = memo(function ChatRoomSidebar({
     const [renamingRoomId, setRenamingRoomId] = useState<number | null>(null);
     const [renameInputValue, setRenameInputValue] = useState("");
     const { currentProfile } = useUserProfile();
+    const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     const handleRename = () => {
         if (!renameInputValue.trim()) return;
@@ -95,10 +96,6 @@ const ChatRoomSidebar = memo(function ChatRoomSidebar({
     const handleMenuClick = (action: string) => {
         if (action === "edit") {
             onOpenUserProfile();
-        } else if (action === "logout") {
-            if (window.confirm("确定要注销账号吗？这将清除所有本地数据")) {
-                onLogout();
-            }
         }
     };
 
@@ -275,28 +272,13 @@ const ChatRoomSidebar = memo(function ChatRoomSidebar({
                                             <UserIcon />
                                         </ContextMenuShortcut>
                                     </ContextMenuItem>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger>
-                                            <ContextMenuItem onClick={() => handleMenuClick("logout")}>
-                                                退出
-                                                <ContextMenuShortcut>
-                                                    <LogOutIcon />
-                                                </ContextMenuShortcut>
-                                            </ContextMenuItem>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>你确定要退出登录吗？</AlertDialogTitle>
-                                            </AlertDialogHeader>
 
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel variant="outline">取消</AlertDialogCancel>
-                                                <AlertDialogAction variant="destructive" onClick={onLogout}>
-                                                    登出
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
+                                    <ContextMenuItem onClick={() => setShowLogoutDialog(true)}>
+                                        退登
+                                        <ContextMenuShortcut>
+                                            <LogOutIcon />
+                                        </ContextMenuShortcut>
+                                    </ContextMenuItem>
                                 </ContextMenuGroup>
                             </ContextMenuContent>
                         </ContextMenu>
@@ -344,6 +326,27 @@ const ChatRoomSidebar = memo(function ChatRoomSidebar({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>你确定要退出登录吗？</AlertDialogTitle>
+                        <AlertDialogDescription>退出后如果没有记住用户ID那么数据将全部丢失</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setShowLogoutDialog(false)}>取消</AlertDialogCancel>
+                        <AlertDialogAction
+                            variant="destructive"
+                            onClick={() => {
+                                setShowLogoutDialog(false);
+                                onLogout();
+                            }}
+                        >
+                            登出
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 });

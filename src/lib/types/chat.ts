@@ -56,6 +56,12 @@ export interface ChatRoomSidebarProps {
     confirmCreateRoom: () => Promise<void>;
     cancelCreateRoom: () => void;
     cancelJoinRoom: () => void;
+    onStartPrivateChat: () => void;
+    onPrivateChatUserIdChange: (value: string) => void;
+    onSendPrivateChatRequest: (userId: string) => Promise<void>;
+    onCancelPrivateChat: () => void;
+    showPrivateChatInput: boolean;
+    privateChatUserId: string;
 }
 
 export interface UploadFileProps {
